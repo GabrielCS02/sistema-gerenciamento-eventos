@@ -1,12 +1,20 @@
+from datetime import datetime
+
 # Lista de eventos (cada evento é um dicionário)
 eventos = []
 
-# Função para validar se o número de vagas é maior que zero
+# Função para validar se o número de vagas é maior que zero e é um número válido
 def validar_vagas(vagas_max):
-    while vagas_max <= 0:
-        print("Número de vagas deve ser maior que zero. Tente novamente.")
-        vagas_max = int(input("Número máximo de vagas: "))
-    return vagas_max
+    while True:
+        try:
+            vagas_max = int(vagas_max)
+            if vagas_max > 0:
+                return vagas_max
+            else:
+                print("O número de vagas deve ser maior que zero. Tente novamente.")
+        except ValueError:
+            print("O número de vagas deve ser um número inteiro válido. Tente novamente.")
+        vagas_max = input("Número máximo de vagas: ")
 
 # Função para cadastrar eventos
 def cadastrar_evento(nome, data, descricao, vagas_max):
@@ -24,7 +32,6 @@ def cadastrar_evento(nome, data, descricao, vagas_max):
 
 # Função para validar a entrada de data
 def validar_data(data):
-    from datetime import datetime
     while True:
         try:
             datetime.strptime(data, '%Y-%m-%d')  # Tentando converter a data para o formato YYYY-MM-DD
@@ -55,7 +62,9 @@ def visualizar_eventos():
     else:
         print("Eventos Disponíveis:")
         for evento in eventos:
-            print(f"{evento['nome']} - {evento['data']} - {evento['descricao']} - Vagas Restantes: {evento['vagas_restantes']}")
+            # Conversão da data para o formato brasileiro
+            data_brasileira = datetime.strptime(evento['data'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            print(f"{evento['nome']} - {data_brasileira} - {evento['descricao']} - Vagas Restantes: {evento['vagas_restantes']}")
 
 # Função para validar o nome do aluno
 def validar_aluno(aluno):
@@ -116,7 +125,7 @@ def menu():
             nome = input("Nome do evento: ")
             data = input("Data do evento (YYYY-MM-DD): ")
             descricao = input("Descrição do evento: ")
-            vagas_max = int(input("Número máximo de vagas: "))
+            vagas_max = input("Número máximo de vagas: ")
             vagas_max = validar_vagas(vagas_max)  # Validação de vagas
             data = validar_data(data)  # Validação de data
             cadastrar_evento(nome, data, descricao, vagas_max)
@@ -125,7 +134,8 @@ def menu():
             nome_evento = input("Nome do evento que deseja atualizar: ")
             nova_data = input("Nova data do evento (deixe em branco para não alterar): ")
             novas_vagas = input("Novo número de vagas (deixe em branco para não alterar): ")
-            novas_vagas = int(novas_vagas) if novas_vagas else None
+            if novas_vagas:
+                novas_vagas = validar_vagas(novas_vagas)  # Validação de vagas
             atualizar_evento(nome_evento, nova_data or None, novas_vagas)
         
         elif escolha == "3":
